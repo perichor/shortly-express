@@ -22,26 +22,33 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
+var restrict = function(req, res, next) {
+  if (req.session) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+};
 
-app.get('/', 
-function(req, res) {
+app.get('/login', function(req, res) {
+  res.render('login');
+});
+
+app.get('/', restrict, function(req, res) {
   res.render('index');
 });
 
-app.get('/create', 
-function(req, res) {
+app.get('/create', restrict, function(req, res) {
   res.render('index');
 });
 
-app.get('/links', 
-function(req, res) {
+app.get('/links', restrict, function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.status(200).send(links.models);
   });
 });
 
-app.post('/links', 
-function(req, res) {
+app.post('/links', function(req, res) {
   var uri = req.body.url;
 
   if (!util.isValidUrl(uri)) {
@@ -72,10 +79,46 @@ function(req, res) {
   });
 });
 
+app.get('/signup', function(req, res) {
+  app.render('signup');
+});
+
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
 
+app.post('/signup', function(req, res, next) {
+  var username = req.body.username;
+  var password = req.body.password;
+
+  new User({username: username, password: password, salt: '0000'}).fetch().then(function(found) {
+    if (found) {
+      res.status(200).send(found.attributes);
+    } else {
+      Users.create({
+        username: username,
+        password: password,
+        salt: '0000'
+      });
+    }
+  })
+  .then(function(newUser) {
+    res.redirect('/');
+  });
+});
+
+app.post('/login', function(req, res, next) {
+  var username = req.body.username;
+  var password = req.body.password;
+
+  new User({username: username, password: password, salt: '0000'}).fetch().then(function(found) {
+    if (found) {
+      res.redirect('/');
+    } else {
+      res.redirect('/login');
+    }
+  });
+});
 
 
 /************************************************************/
