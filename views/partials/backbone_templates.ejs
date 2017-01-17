@@ -4,9 +4,16 @@
   <ul>
     <li><a href='#' class='index'>All Links</a></li>
     <li><a href='#' class='create'>Shorten</a></li>
+    <li id='clicker'><a href='#' class='logout'>Logout</a></li>
   </ul>
   </div>
   <div id='container'></div>
+  <script>
+    $('#clicker').on('click', function() {
+      document.cookie = 'user=""';
+      window.location = '/login';
+    });
+  </script>
 </script>
 
 <script id='link' type='text/x-handlebars-template'>
@@ -22,7 +29,7 @@
 <script id='create' type='text/x-handlebars-template'>
   <form>
       <input class='text' type='text' name='url'>
-      <input type='submit' value='Shorten'>
+      <input type='submit' value='Shorten'>x
   </form>
   <img class='spinner' src='/spiffygif_46x46.gif'>
   <div class='message'></div>
@@ -30,7 +37,7 @@
 
 <script>
   window.Templates = {};
-  $('[type="text/x-handlebars-template"]').each(function(index, div){
+  $('[type="text/x-handlebars-template"]').each(function(index, div) {
     Templates[div.id] = Handlebars.compile(div.innerHTML);
   });
 </script>

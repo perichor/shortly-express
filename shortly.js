@@ -3,7 +3,7 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
-
+var bcrypt = require('bcrypt-nodejs');
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -25,7 +25,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 var checkUser = function(req, res, next) {
-  console.log('req.cookies: ', req.cookies);
   if (req.cookies.user) {
     next();
   } else {
@@ -93,7 +92,7 @@ app.get('/signup', function(req, res) {
 app.post('/signup', function(req, res, next) {
   var username = req.body.username;
   var password = req.body.password;
-
+  
   new User({username: username, password: password, salt: '0000'}).fetch().then(function(found) {
     if (found) {
       res.status(200).send(found.attributes);
